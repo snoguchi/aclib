@@ -79,6 +79,5 @@ Hash.forEach({ x:setPosX, y:setPosY, w:setW, h:setH, /* str:setStr, visible:setV
 Node.focusNode = new Node(getRootNode());
 
 System.input.observe(function(type, args) {
-  if (Node.focusNode[type])
-    Node.focusNode[type].apply(Node.focusNode, args);
+  Node.focusNode.notify(type, args);
 });
