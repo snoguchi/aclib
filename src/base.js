@@ -1,32 +1,41 @@
-Hash = function() {};
-Hash.prototype = {
-  extend: function(o) {
-    for (var k in o)
-      this[k] = o[k];
-    return this;
-  },
-  forEach: function(f, o) {
-    for (var k in this)
-      if (this.hasOwnProperty(k))
-	f.call(o, k, this[k], this);
-  },
+Base = {
   map: function(f, o) {
     var r = [];
     this.forEach(function() { r.push(f.apply(o, arguments)); });
-    return r;
-  },
-  filter: function(f, o) {
-    var r = {};
-    this.forEach(function(k, v) { if (f.apply(o, arguments)) r[k] = v; });
     return r;
   },
   reduce: function(r, f, o) {
     this.forEach(function() {
       Array.unshift(arguments, r); r = f.apply(o, arguments); });
     return r;
+  }
+};
+
+Hash = function() {};
+Hash.prototype = {
+  __proto__: Base,
+  forEach: function(f, o) {
+    for (var k in this)
+      if (this.hasOwnProperty(k))
+	f.call(o, k, this[k], this);
+  },
+  filter: function(f, o) {
+    var r = {};
+    for (var k in this)
+      if (f.apply(o, arguments))
+	r[k] = v;
+    return r;
+  },
+  extend: function(o) {
+    for (var k in o)
+      this[k] = o[k];
+    return this;
   },
   query: function() {
-    return this.map(function(k, v) { return k + '=' + escape(v); }).join('&');
+    var r = [];
+    for (var k in this)
+      r.push(k + '=' + escape(this[k]));
+    return r.join('&');
   }
 };
 
@@ -51,7 +60,7 @@ Function.prototype.__proto__ = {
 };
 
 Array.prototype.__proto__ = {
-  __proto__: Hash.prototype,
+  __proto__: Base,
   invoke: function(name, args) {
     args = args || [];
     return this.map(function(v) { return v[name].apply(v, args); });
@@ -73,7 +82,7 @@ Array.prototype.__proto__ = {
 };
 
 String.prototype.__proto__ = {
-  __proto__: Hash.prototype,
+  __proto__: Base,
   bind: function(o) {
     var f = o[this];
     return function() { return f.apply(o, arguments); };
@@ -90,7 +99,7 @@ String.prototype.__proto__ = {
 };
 
 Number.prototype.__proto__ = {
-  __proto__: Hash.prototype,
+  __proto__: Base,
   forEach: function(f, o) {
     for (var i = 0; i < this; i++)
       f.call(o, i, this);
