@@ -1,4 +1,12 @@
-Base = {
+Hash = function(o) { this.extend(o) };
+Hash.prototype = {
+  __proto__: Hash.prototype,
+  forEach: function(f, o) {
+    o = o || this;
+    for (var k in this)
+      if (this.hasOwnProperty(k))
+	f.call(o, k, this[k], this);
+  },
   map: function(f, o) {
     var r = [];
     this.forEach(function() { r.push(f.apply(o, arguments)); });
@@ -8,16 +16,6 @@ Base = {
     this.forEach(function() {
       Array.unshift(arguments, r); r = f.apply(o, arguments); });
     return r;
-  }
-};
-
-Hash = function() {};
-Hash.prototype = {
-  __proto__: Base,
-  forEach: function(f, o) {
-    for (var k in this)
-      if (this.hasOwnProperty(k))
-	f.call(o, k, this[k], this);
   },
   filter: function(f, o) {
     var r = {};
@@ -60,7 +58,7 @@ Function.prototype.__proto__ = {
 };
 
 Array.prototype.__proto__ = {
-  __proto__: Base,
+  __proto__: Hash.prototype,
   invoke: function(name, args) {
     args = args || [];
     return this.map(function(v) { return v[name].apply(v, args); });
@@ -82,7 +80,7 @@ Array.prototype.__proto__ = {
 };
 
 String.prototype.__proto__ = {
-  __proto__: Base,
+  __proto__: Hash.prototype,
   bind: function(o) {
     var f = o[this];
     return function() { return f.apply(o, arguments); };
@@ -99,7 +97,7 @@ String.prototype.__proto__ = {
 };
 
 Number.prototype.__proto__ = {
-  __proto__: Base,
+  __proto__: Hash.prototype,
   forEach: function(f, o) {
     for (var i = 0; i < this; i++)
       f.call(o, i, this);
