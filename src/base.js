@@ -1,6 +1,5 @@
 Hash = function(o) { this.extend(o) };
 Hash.prototype = {
-  __proto__: Hash.prototype,
   forEach: function(f, o) {
     o = o || this;
     for (var k in this)
@@ -28,12 +27,6 @@ Hash.prototype = {
     for (var k in o)
       this[k] = o[k];
     return this;
-  },
-  query: function() {
-    var r = [];
-    for (var k in this)
-      r.push(k + '=' + escape(this[k]));
-    return r.join('&');
   }
 };
 
@@ -89,7 +82,7 @@ String.prototype.__proto__ = {
     return this.replace(/\#\{(.*?)\}/g, function(_, name) { return o[name]; });
   },
   thaw: function() {
-    try { return eval('(' + this + ')'); } catch(e) { return e; }
+    try { return eval('(' + this + ')'); } catch(e) { print(e.message); }
   },
   get chars() {
     return this.match(/([\x00-\x7f]|[\xc2-\xfd][\x80-\xbf]+)/g);
@@ -99,8 +92,9 @@ String.prototype.__proto__ = {
 Number.prototype.__proto__ = {
   __proto__: Hash.prototype,
   forEach: function(f, o) {
-    for (var i = 0; i < this; i++)
+    Array(this + 1).join().split('').forEach(function(_, i) {
       f.call(o, i, this);
+    }, this);
   }
 };
 
